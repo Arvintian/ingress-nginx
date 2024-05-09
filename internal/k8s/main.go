@@ -104,29 +104,37 @@ func GetIngressPod(kubeClient clientset.Interface) error {
 		return fmt.Errorf("unable to get POD information (missing POD_NAME or POD_NAMESPACE environment variable")
 	}
 
-	pod, err := kubeClient.CoreV1().Pods(podNs).Get(context.TODO(), podName, metav1.GetOptions{})
-	if err != nil {
-		return fmt.Errorf("unable to get POD information: %v", err)
-	}
+	// pod, err := kubeClient.CoreV1().Pods(podNs).Get(context.TODO(), podName, metav1.GetOptions{})
+	// if err != nil {
+	// 	return fmt.Errorf("unable to get POD information: %v", err)
+	// }
 
 	IngressPodDetails = &PodInfo{
 		TypeMeta: metav1.TypeMeta{APIVersion: "v1", Kind: "Pod"},
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: podNs,
+			Name:      podName,
+		},
 	}
 
-	pod.ObjectMeta.DeepCopyInto(&IngressPodDetails.ObjectMeta)
-	IngressPodDetails.SetLabels(pod.GetLabels())
+	// pod.ObjectMeta.DeepCopyInto(&IngressPodDetails.ObjectMeta)
+	// IngressPodDetails.SetLabels(pod.GetLabels())
 
 	IngressNodeDetails = &NodeInfo{
 		TypeMeta: metav1.TypeMeta{APIVersion: "v1", Kind: "Node"},
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: podNs,
+			Name:      fmt.Sprintf("%s-node", podName),
+		},
 	}
 	// Try to get node info/labels to determine topology zone where pod is running
-	node, err := kubeClient.CoreV1().Nodes().Get(context.TODO(), pod.Spec.NodeName, metav1.GetOptions{})
-	if err != nil {
-		klog.Warningf("Unable to get NODE information: %v", err)
-	} else {
-		node.ObjectMeta.DeepCopyInto(&IngressNodeDetails.ObjectMeta)
-		IngressNodeDetails.SetLabels(node.GetLabels())
-	}
+	// node, err := kubeClient.CoreV1().Nodes().Get(context.TODO(), pod.Spec.NodeName, metav1.GetOptions{})
+	// if err != nil {
+	// 	klog.Warningf("Unable to get NODE information: %v", err)
+	// } else {
+	// 	node.ObjectMeta.DeepCopyInto(&IngressNodeDetails.ObjectMeta)
+	// 	IngressNodeDetails.SetLabels(node.GetLabels())
+	// }
 
 	return nil
 }
