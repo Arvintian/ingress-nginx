@@ -26,9 +26,6 @@ endif
 # set default shell
 SHELL=/bin/bash -o pipefail -o errexit
 
-# Use the 0.0 tag for testing, it shouldn't clobber any release builds
-TAG ?= $(shell cat TAG)
-
 # e2e settings
 # Allow limiting the scope of the e2e tests. By default run everything
 FOCUS ?=
@@ -40,6 +37,9 @@ E2E_CHECK_LEAKS ?=
 REPO_INFO ?= $(shell git config --get remote.origin.url)
 COMMIT_SHA ?= git-$(shell git rev-parse --short HEAD)
 BUILD_ID ?= "UNSET"
+
+# Use the 0.0 tag for testing, it shouldn't clobber any release builds
+TAG ?= $(shell cat TAG)-$(shell git rev-parse --short HEAD)
 
 PKG = k8s.io/ingress-nginx
 
@@ -73,7 +73,7 @@ image: clean-image ## Build image for a particular arch.
 		--build-arg TARGETARCH="$(ARCH)" \
 		--build-arg COMMIT_SHA="$(COMMIT_SHA)" \
 		--build-arg BUILD_ID="$(BUILD_ID)" \
-		-t $(REGISTRY)/ingress-nginx-controller:$(TAG)-$(COMMIT_SHA) rootfs
+		-t $(REGISTRY)/ingress-nginx-controller:$(TAG) rootfs
 
 .PHONY: gosec
 gosec:
@@ -93,8 +93,8 @@ image-chroot: clean-chroot-image ## Build image for a particular arch.
 
 .PHONY: clean-image
 clean-image: ## Removes local image
-	echo "removing old image $(REGISTRY)/controller:$(TAG)"
-	@docker rmi -f $(REGISTRY)/controller:$(TAG) || true
+	echo "removing old image $(REGISTRY)/ingress-nginx-controller:$(TAG)"
+	@docker rmi -f $(REGISTRY)/ingress-nginx-controller:$(TAG) || true
 
 
 .PHONY: clean-chroot-image
