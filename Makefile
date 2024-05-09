@@ -53,7 +53,7 @@ ifneq ($(PLATFORM),)
 	PLATFORM_FLAG="--platform"
 endif
 
-REGISTRY ?= gcr.io/k8s-staging-ingress-nginx
+REGISTRY ?= registry.cn-beijing.aliyuncs.com/liteyun-labs
 
 BASE_IMAGE ?= $(shell cat NGINX_BASE)
 
@@ -73,7 +73,7 @@ image: clean-image ## Build image for a particular arch.
 		--build-arg TARGETARCH="$(ARCH)" \
 		--build-arg COMMIT_SHA="$(COMMIT_SHA)" \
 		--build-arg BUILD_ID="$(BUILD_ID)" \
-		-t $(REGISTRY)/controller:$(TAG) rootfs
+		-t $(REGISTRY)/ingress-nginx-controller:$(TAG)-$(COMMIT_SHA) rootfs
 
 .PHONY: gosec
 gosec:
